@@ -1,0 +1,8 @@
+body{margin:0;font-family:Segoe UI,sans-serif;background:#eef2f7;color:#333}
+header{background:#0d47a1;color:#fff;padding:18px;position:sticky;top:0}
+nav a{color:#fff;margin-right:15px;text-decoration:none}
+.hero{padding:60px;text-align:center;background:linear-gradient(135deg,#1565c0,#42a5f5);color:#fff}
+.card{background:#fff;margin:20px;padding:20px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px;margin:20px}
+table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:10px}th{background:#1565c0;color:#fff}
+footer{text-align:center;background:#0d47a1;color:#fff;padding:20px}
