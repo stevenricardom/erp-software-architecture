@@ -1,0 +1,80 @@
+@startuml Diagrama_Secuencia_SubirDocumento
+title Diagrama de Secuencia - Subir y Consultar Documentos\nHU: Como auxiliar administrativo, quiero subir documentos con categoría y fecha para que queden centralizados y accesibles
+
+actor "Auxiliar Administrativo" as Auxiliar
+participant "Interfaz WPF\n(Módulo Gestión Documental)" as UI
+participant "Capa de Lógica de Negocio" as Logica
+participant "Capa de Acceso a Datos\n(EF Core)" as Acceso
+database "Base de Datos\n(SQL Server)" as BD
+
+== Cargar documento (Criterios 1 y 2) ==
+
+Auxiliar -> UI : Selecciona archivo y diligencia metadatos\n(categoría, fecha, descripción)
+activate UI
+
+UI -> Logica : ValidarYGuardarDocumento(archivo, metadatos)
+activate Logica
+
+Logica -> Logica : Verificar extensión del archivo\ncontra tipos permitidos
+
+alt Tipo de archivo NO permitido
+    Logica --> UI : Error: tipo de archivo no permitido
+    UI --> Auxiliar : Muestra mensaje de error
+else Tipo de archivo permitido
+    Logica -> Logica : Verificar metadatos obligatorios\n(categoría y fecha)
+
+    alt Metadatos incompletos
+        Logica --> UI : Error: categoría y/o fecha obligatorios
+        UI --> Auxiliar : Muestra mensaje de error
+    else Metadatos completos
+        Logica -> Acceso : GuardarDocumento(documento, idUsuario, fechaCarga)
+        activate Acceso
+
+        Acceso -> BD : INSERT INTO Documento\n(nombre, ruta, extension, categoria,\nfecha, idUsuarioCarga, fechaCarga)
+        activate BD
+        BD --> Acceso : idDocumento generado
+        deactivate BD
+
+        Acceso -> BD : INSERT INTO Auditoria_Documento\n(idDocumento, idUsuario, accion='CARGA', fechaAccion)
+        activate BD
+        BD --> Acceso : Confirmación
+        deactivate BD
+
+        Acceso --> Logica : Documento guardado (idDocumento)
+        deactivate Acceso
+
+        Logica --> UI : Resultado = Éxito
+        deactivate Logica
+
+        UI -> UI : Actualizar listado de documentos
+        UI --> Auxiliar : Documento guardado y visible en el listado
+    end
+end
+deactivate UI
+
+== Consultar documento (Criterio 3) ==
+
+Auxiliar -> UI : Selecciona documento del listado
+activate UI
+
+UI -> Logica : ConsultarDetalleDocumento(idDocumento)
+activate Logica
+
+Logica -> Acceso : ObtenerDocumentoConAuditoria(idDocumento)
+activate Acceso
+
+Acceso -> BD : SELECT Documento\nJOIN Usuario ON idUsuarioCarga\nJOIN Auditoria_Documento
+activate BD
+BD --> Acceso : Datos del documento,\nusuario que lo subió y fecha de carga
+deactivate BD
+
+Acceso --> Logica : DocumentoDetalle
+deactivate Acceso
+
+Logica --> UI : DocumentoDetalle
+deactivate Logica
+
+UI --> Auxiliar : Muestra documento, usuario que lo subió\ny fecha en que se cargó
+deactivate UI
+
+@enduml
