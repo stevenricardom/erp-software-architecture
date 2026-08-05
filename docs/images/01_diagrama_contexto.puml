@@ -1,0 +1,27 @@
+@startuml Diagrama_Contexto_ERP
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+title Diagrama de Contexto del Sistema - ERP de Gestión de Propiedad Horizontal
+
+Person(administrador, "Administrador del Conjunto", "Gestiona la operación integral del conjunto residencial: usuarios, PQRS, mantenimiento y reportes.")
+Person(auxiliar, "Auxiliar Administrativo", "Apoya el registro y seguimiento de solicitudes, residentes y documentación.")
+Person(mantenimiento, "Personal de Mantenimiento", "Recibe y ejecuta las actividades de mantenimiento preventivo y correctivo asignadas.")
+Person(vigilancia, "Personal de Vigilancia", "Consulta información del conjunto con permisos restringidos y limitados a sus funciones.")
+Person(residente, "Residente / Propietario", "Registra PQRS y consulta el estado de sus solicitudes.")
+
+System(erp, "ERP Gestión de Propiedad Horizontal", "Permite centralizar la administración de residentes, PQRS, mantenimiento, documentos, reportes y auditoría de un conjunto residencial.")
+
+System_Ext(sqlServer, "Microsoft SQL Server", "Motor de base de datos donde se almacena de forma centralizada la información del sistema.")
+System_Ext(reportes, "Motor de Reportes (RDLC / FastReport)", "Genera reportes e indicadores de gestión a partir de la información del sistema.")
+
+Rel(administrador, erp, "Administra usuarios, PQRS, mantenimiento, documentos y reportes", "Escritorio - WPF")
+Rel(auxiliar, erp, "Registra residentes, solicitudes y documentos", "Escritorio - WPF")
+Rel(mantenimiento, erp, "Consulta y actualiza actividades de mantenimiento asignadas", "Escritorio - WPF")
+Rel(vigilancia, erp, "Consulta información permitida según su rol", "Escritorio - WPF")
+Rel(residente, erp, "Registra y consulta el estado de sus PQRS", "Escritorio - WPF")
+
+Rel(erp, sqlServer, "Lee y escribe información", "TCP/IP - Entity Framework Core")
+Rel(erp, reportes, "Solicita generación de reportes e indicadores", "Llamada local / API interna")
+
+@enduml

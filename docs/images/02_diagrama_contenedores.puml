@@ -1,0 +1,38 @@
+@startuml Diagrama_Contenedores_ERP
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+title Diagrama de Contenedores - ERP de Gestión de Propiedad Horizontal
+
+Person(administrador, "Administrador del Conjunto", "Gestiona la operación integral del conjunto residencial.")
+Person(auxiliar, "Auxiliar Administrativo", "Apoya el registro y seguimiento de solicitudes.")
+Person(mantenimiento, "Personal de Mantenimiento", "Ejecuta actividades de mantenimiento asignadas.")
+Person(vigilancia, "Personal de Vigilancia", "Consulta información con permisos restringidos.")
+Person(residente, "Residente / Propietario", "Registra y consulta PQRS.")
+
+System_Boundary(erp, "ERP Gestión de Propiedad Horizontal") {
+
+    Container(presentacion, "Capa de Presentación", "C# .NET 8 - WPF", "Interfaz gráfica de escritorio. Gestiona inicio de sesión, roles y permisos, y expone los módulos de Usuarios, Residentes, PQRS, Mantenimiento, Documentos, Reportes y Auditoría.")
+
+    Container(logica, "Capa de Lógica de Negocio", "C# .NET 8 - Class Library", "Contiene las reglas de negocio: asignación de responsables, seguimiento de solicitudes, cálculo de indicadores, validaciones y control de auditoría.")
+
+    Container(acceso, "Capa de Acceso a Datos", "Entity Framework Core", "Traduce las operaciones de negocio en consultas hacia la base de datos y gestiona las transacciones.")
+
+    Container(reportes, "Módulo de Reportes", "Microsoft RDLC / FastReport", "Genera reportes e indicadores de gestión (PQRS, tiempos de atención, estadísticas) a partir de la información del sistema.")
+}
+
+ContainerDb(bd, "Base de Datos", "Microsoft SQL Server", "Almacena de forma centralizada residentes, propietarios, PQRS, actividades de mantenimiento, documentos, usuarios, roles y el historial de auditoría.")
+
+Rel(administrador, presentacion, "Usa", "Escritorio")
+Rel(auxiliar, presentacion, "Usa", "Escritorio")
+Rel(mantenimiento, presentacion, "Usa", "Escritorio")
+Rel(vigilancia, presentacion, "Usa", "Escritorio")
+Rel(residente, presentacion, "Usa", "Escritorio")
+
+Rel(presentacion, logica, "Invoca reglas de negocio", "Llamadas internas .NET")
+Rel(logica, acceso, "Solicita/persiste datos", "Llamadas internas .NET")
+Rel(acceso, bd, "Lee y escribe", "TCP/IP - EF Core / SQL")
+Rel(presentacion, reportes, "Solicita generación de reportes", "Llamadas internas .NET")
+Rel(reportes, acceso, "Consulta datos para los reportes", "Llamadas internas .NET")
+
+@enduml
